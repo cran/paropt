@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Konrad Krämer" />
+
+
+<title>paropt</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">paropt</h1>
+<h4 class="author">Konrad Krämer</h4>
+
+
+
+<div id="how-to-use-paropt" class="section level1">
+<h1>How to use paropt</h1>
+<p>The package paropt is build in order to optimize parameters of ode-systems. Thus, the aim is that the output of the integration matches previously measured states. The user has to supply an ode-system in the form of a Rcpp-function. The information about states and parameters are passed via text-files. Additional information such as e.g. the relative tolerance are passed in R. This vignette uses a predator-prey system as example to show how the package can be used.</p>
+<div id="the-ode-system" class="section level2">
+<h2>The ode-system</h2>
+<p>The ode system should be a Rcpp-function with a specific signature. The function is called very often, thus using a R function is not advisable. The name of the function is free to choose. The following parameters have to be passed: a double t, a std::vector<double> params, and a Rcpp::NumericVector y. The first entry defines the time point when the function is called. The second argument defines the parameter which should be optimized. Notably, the parameters are in the same order as in the text-files containing the start-values and the information about the boundaries. The last argument is a vector containing the states in the same order as defined in the text-file containing the state-information. Thus, it is obligatory that the state-derivates in the ode-system are in the same order defined as in the text-file. Furthermore, it is mandatory that the function return a Rcpp::NumericVector with the same dimension as the input vector containing the states. Naturally, the vector should contain the right hand side of the ode-system.</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span>
+
+<span class="co">// [[Rcpp::export]]</span>
+Rcpp::NumericVector ode_system(<span class="dt">double</span> t, <span class="bu">std::</span>vector&lt;<span class="dt">double</span>&gt; params,
+                                   Rcpp::NumericVector states) {
+
+<span class="co">// set dimension of vector which should be returned</span>
+Rcpp::NumericVector states_deriv(<span class="dv">2</span>); <span class="co">//two states in the example above (prey and predator)</span>
+  
+<span class="co">// store parameters in variables</span>
+<span class="dt">double</span> a = params[<span class="dv">0</span>];
+<span class="dt">double</span> b = params[<span class="dv">1</span>];
+<span class="dt">double</span> c = params[<span class="dv">2</span>];
+<span class="dt">double</span> d = params[<span class="dv">3</span>];
+  
+<span class="co">// store states in variables</span>
+<span class="dt">double</span> predator = states[<span class="dv">0</span>]; 
+<span class="dt">double</span> prey = states[<span class="dv">1</span>]; 
+
+<span class="co">// the actual ode-system            </span>
+<span class="dt">double</span> ddtpredator = states_deriv[<span class="dv">0</span>] = predator*c*prey - predator*d;
+<span class="dt">double</span> ddtprey = states_deriv[<span class="dv">1</span>] = prey*a - prey*b*predator;
+
+<span class="cf">return</span> states_deriv;
+}</code></pre></div>
+</div>
+<div id="state-input" class="section level2">
+<h2>State-input</h2>
+<p>The information of the states, have to be supplied as textfiles tab seperated. The delimiter has to be a '.'. It is possible to use scientific notations ('.', '+', '-', 'e', 'E' and naturally all digits are allowed). It is compulsory that the first column has the name time. This column contains the independent variable across the solver integrate (it has not to be the time. In this document it is always called time). It is followed by the information of the states at the specific time points. It is pivotal that the order of the states is the same as in the ode-system in order to correctly calculate the error. If a state is not availabe at all timepoints use NA in order to ignore this state at the specified timepoint for calculating the error (see Table1). However, the first line below the header cannot contain NA due to the fact that in this line the start values for the solver are defined.</p>
+<table>
+<caption>Table1: Possible input for states.</caption>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">predator</th>
+<th align="right">prey</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">10.00</td>
+<td align="right">10.000</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2.13</td>
+<td align="right">0.022</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">0.23</td>
+<td align="right">3.023</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">4.30</td>
+<td align="right">0.028</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="right">0.37</td>
+<td align="right">5.000</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">8.60</td>
+<td align="right">0.330</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="parameter-input" class="section level2">
+<h2>Parameter-input</h2>
+</div>
+<div id="types-of-parameters" class="section level2">
+<h2>Types of parameters</h2>
+<p>There exists two different types of parameters: constant and variable parameters. For instance (see Table2) parameters p1, p2 and p3 are variable whereas p4 is constant during the entire time from t = 0 to t = 10.</p>
+<table class="kable_wrapper">
+<caption>
+Table2: Possible input for parameters: start values, lower- and upper-bounds
+</caption>
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">p1</th>
+<th align="right">p2</th>
+<th align="right">p3</th>
+<th align="right">p4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0.8699751</td>
+<td align="right">2.8340258</td>
+<td align="right">0.7183206</td>
+<td align="right">0.3800352</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">1.1791593</td>
+<td align="right">1.9823934</td>
+<td align="right">0.4456933</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">1.7612748</td>
+<td align="right">1.8873421</td>
+<td align="right">0.7928573</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">2.7338026</td>
+<td align="right">0.1853588</td>
+<td align="right">0.5479293</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="right">0.6848776</td>
+<td align="right">0.6179237</td>
+<td align="right">0.7458567</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">2.7053301</td>
+<td align="right">0.5296703</td>
+<td align="right">0.9927155</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">p1</th>
+<th align="right">p2</th>
+<th align="right">p3</th>
+<th align="right">p4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">0.1</td>
+<td align="right">0</td>
+<td align="right">0.1</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">p1</th>
+<th align="right">p2</th>
+<th align="right">p3</th>
+<th align="right">p4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p>In the predator-prey example followed here all parameters which should be optimized are constant (see tables below).</p>
+<table class="kable_wrapper">
+<caption>
+Table3: parameter-input for predator-prey-model: start values, lower- and upper-bounds
+</caption>
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">a</th>
+<th align="right">b</th>
+<th align="right">c</th>
+<th align="right">d</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.2</td>
+<td align="right">0.25</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">a</th>
+<th align="right">b</th>
+<th align="right">c</th>
+<th align="right">d</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0.8</td>
+<td align="right">0.3</td>
+<td align="right">0.09</td>
+<td align="right">0.09</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">a</th>
+<th align="right">b</th>
+<th align="right">c</th>
+<th align="right">d</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">1.3</td>
+<td align="right">0.7</td>
+<td align="right">0.4</td>
+<td align="right">0.7</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The start-values, lower-bounds and upper-bounds for the parameters have to be supplied as textfiles which is tab seperated. The delimiter has to be a '.'. It is possible to use scientific notations ('.', '+', '-', 'e', 'E' and naturally all digits are allowed). As for the states it is mandatory that the first column has the name time. This column contains the independent variable across the solver integrate (it has not to be the time) The start-values have to be between the lower and upper boundary. Naturally, the lower-bounds have to be smaller than the upper-bounds.</p>
+</div>
+<div id="what-happens-during-one-evaluation-of-a-parameterset" class="section level2">
+<h2>What happens during one evaluation of a parameterset</h2>
+<p>During the optimization the optimizer creates a bunch of possible solutions which consists of the four different values for a, b, c and d. Each solution is passed to the ode-solver which integrate along the time and return the states at the time-points specified in the text-file containing the state-information. The <em>in silico</em> solution is compared to the measured states in order to evaluate the parameterset. The error used is the sum of the absolute differences, between <em>in silico</em> and measured states, divided by the number of timepoints.</p>
+<p>During the integration the ode-solver can reach a timepoint t where no information for the parameter is measured. For instance in table 2 the timepoint 1.5 is not defined for the parameters p1, p2 and p3. In this case the parameters have to be interpolated. This is conducted using a Catmull-Rom-Spline. The parameter-vector passed to the ode-system contains already the splined parameters at timepoint t. Thus, using the table above (see Table2) the parametervector could contain for instance at timepoint t = 1.5 (p1 = 1.11, p2 = 1.99, p3 = 0.66, p4 = 0.38) (for the start-values). Due to that, the parameters passed to the ode-system are in the same order as defined in the text-files but already interpolated.</p>
+</div>
+<div id="finally-optimize-the-parameters" class="section level2">
+<h2>finally optimize the parameters</h2>
+<p>When you have the four textfiles defining the states, parameter start-values, lower- and upper-bounds and the ode-system you can start running the optimization.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">path &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;examples&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;paropt&quot;</span>)
+<span class="kw">library</span>(paropt)
+<span class="co">#Rcpp::sourceCpp(paste(path,&quot;/ode.cpp&quot;, sep = &quot;&quot;))</span>
+<span class="co">#if you want compile ode-system on your system (already precompiled in package)</span>
+df &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="kw">paste</span>(path,<span class="st">&quot;/states_LV.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">header =</span> <span class="ot">TRUE</span>)
+time &lt;-<span class="st"> </span>df<span class="op">$</span>time
+param_start &lt;-<span class="st"> </span><span class="kw">paste</span>(path, <span class="st">&quot;/start.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
+param_lb &lt;-<span class="st"> </span><span class="kw">paste</span>(path, <span class="st">&quot;/lb.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
+param_ub &lt;-<span class="st"> </span><span class="kw">paste</span>(path, <span class="st">&quot;/ub.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
+states &lt;-<span class="st"> </span><span class="kw">paste</span>(path, <span class="st">&quot;/states_LV.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
+state_output &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">tempdir</span>(), <span class="st">&quot;/final_stateoutput.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
+par_output &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">tempdir</span>(), <span class="st">&quot;/optimized_params.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
+<span class="kw">set.seed</span>(<span class="dv">1</span>)
+<span class="kw">optimizer</span>(time, paropt<span class="op">:::</span>ode_example, <span class="fl">1e-6</span>, <span class="kw">c</span>(<span class="fl">1e-8</span>, <span class="fl">1e-8</span>),
+          param_start, param_lb, param_ub,
+          states, <span class="dt">npop =</span> <span class="dv">40</span>, <span class="dt">ngen =</span> <span class="dv">200</span>, <span class="dt">error =</span> <span class="dv">1</span>,
+          state_output, par_output, <span class="st">&quot;bdf&quot;</span>)
+df_in_silico &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="kw">paste</span>(<span class="kw">tempdir</span>(), <span class="st">&quot;/final_stateoutput.txt&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">header =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="the-arguments-for-function-optimizer" class="section level2">
+<h2>The arguments for function optimizer()</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">optimizer</span>(time, ode, <span class="fl">1e-6</span>, <span class="kw">c</span>(<span class="fl">1e-8</span>, <span class="fl">1e-8</span>),
+          param_start, param_lb, param_ub,
+          states, <span class="dt">npop =</span> <span class="dv">40</span>, <span class="dt">ngen =</span> <span class="dv">200</span>, <span class="dt">error =</span> <span class="dv">1</span>,
+          state_output, par_output, <span class="st">&quot;bdf&quot;</span>)</code></pre></div>
+<p>The first argument is the time-vector containing either the same information as in the time-column defined in the text-file containing the states (see Table1) or only a <em>subset</em> (it can only be shorted at the end).<br />
+It is mandatory to start with the first entry of the time-column, however it is possible to stop at a certain time-point before the last one. Thus, it is possible to optimize only a part of the problem. Next argument is the compiled ode-system (e.g. see code above which is compiled using the Rcpp::sourceCpp('odesystem.cpp') code in R). The relative tolerance and the absolute tolerances are used by the ode-solver. Next the textfiles for the start-values for the parameters (used for test-integration), the lower- and upper-bounds and the states are defined. In order to optimize the parameters a particle swarm optimizer (PSO) is used. Therefore, the number of particles (npop = 40 is a good starting point for many problems) and the number of generations (ngen) have to be passed to the function. The number of generations defines the maximum number of generations the PSO should run. However, if the PSO finds a suitable parameterset which posess an error below or equal a threshold defined by the user it stops. This threshold is defined by the error-argument. Next two names of (probably best non-exisiting) textfiles are passed. Using this names the function creates two textfiles. The first one containing the state-output of the integration using the optimized parameters and the second one contains the optimized parameters itself. The last argument defines the typ of solver to be used. There exists four different solver: 'bdf', 'ADAMS', 'ERK' and 'ARK. All solvers are part of the SUNDIALS projexct. For details see '<a href="https://computing.llnl.gov/projects/sundials" class="uri">https://computing.llnl.gov/projects/sundials</a>' and <span class="citation">Hindmarsh et al. (2005)</span>. The bdf solver is the backward differential formular solver of CVODE and is best used for stiff problems. It uses a dense matrix module (SUNDense_Matrix) and the corresponding nonlinear solver (SUNLinsol_Dense). The ADAMS solver is the ADAMS-MOULTON solver of CVODE and is most suitable for non-stiff problems. The 'ERK' solver is an explicite Runge-Kutta solver which is also as the ADAMS-MOULTON solver used for non-stiff-problems. The 'ARK' solver is a fully implicte Runge-Kutta-solver which uses the same matrix and nonlinear solver module as 'bdf'. The integration itself occures for all four solvers in a for-loop using the 'CV_NORMAL' step-function. If integration for a specific parameterset is not possible the error is set to 1.79769e+308 (which is the maximum of a double).</p>
+<p>If you want to test a specific parameterset just call the function ode_solving. The function requires the same parameter as optimizer. Naturally, the arguments for the PSO, the error-threshold as well as the parameter lower- and upper-bounds are not needed.</p>
+</div>
+<div id="particle-swarm-optimizer-pso" class="section level2">
+<h2>Particle swarm optimizer (PSO)</h2>
+<p>This PSO-implementation is a modified version of '<a href="https://github.com/kthohr/optim" class="uri">https://github.com/kthohr/optim</a>' (for a general overview see <span class="citation">Sengupta, Basak, and Peters (2018)</span>). The PSO has several key features. First of all a bunch (number of particles defined by user) of possible parametersets is created within the boundaries defined by the user. Each parameterset is called a particle. All particles together are called the swarm. Each possible parameterset is passed to the solver which integrates the system. The result is used to calculate the error. Thus, each particle has a current solution and a current personal best value. Furthermore, each particle possess a neighberhood which consists of 0-3 other particles (for details see <span class="citation">D. Akman, Akman, and Schaefer (2018)</span>). The PSO uses a combination of its history (personal best value) and the information of the best particle of the neighberhood to change its current value. Notably, in this package a randomly adaptive topology is used. This means, that the neighberhood is recalculated each time when the global best solution (best solution of the entire swarm) has not improved within one generation.</p>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references">
+<div id="ref-Akman2018">
+<p>Akman, Devin, Olcay Akman, and Elsa Schaefer. 2018. “Parameter Estimation in Ordinary Differential Equations Modeling via Particle Swarm Optimization.” <em>Journal of Applied Mathematics</em> 2018. doi:<a href="https://doi.org/10.1155/2018/9160793">10.1155/2018/9160793</a>.</p>
+</div>
+<div id="ref-Hindmarsh2005">
+<p>Hindmarsh, Alan C., Peter N. Brown, Keith E. Grant, Steven L. Lee, Radu Serban, Dan E. Shumaker, and Carol S. Woodward. 2005. “SUNDIALS: Suite of nonlinear and differential/algebraic equation solvers.” <em>ACM Transactions on Mathematical Software</em> 31 (3): 363–96. doi:<a href="https://doi.org/10.1145/1089014.1089020">10.1145/1089014.1089020</a>.</p>
+</div>
+<div id="ref-Sengupta2018">
+<p>Sengupta, Saptarshi, Sanchita Basak, and Richard Peters. 2018. “Particle Swarm Optimization: A Survey of Historical and Recent Developments with Hybridization Perspectives.” <em>Machine Learning and Knowledge Extraction</em> 1 (1): 157–91. doi:<a href="https://doi.org/10.3390/make1010010">10.3390/make1010010</a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
