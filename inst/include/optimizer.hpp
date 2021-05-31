@@ -36,12 +36,13 @@ For details see: https://github.com/kthohr/optim
 // ===============================================================
 */
 
-#pragma once
+#ifndef OPTIMIZER
+#define OPTIMIZER
+
 #include "header.hpp"
 
 class Optimizer {
 private:
-    std::vector<double> m_start;
     std::vector<double> m_lb;
     std::vector<double> m_ub;
     settingsPSO setpso;
@@ -52,7 +53,6 @@ private:
     SEXP odes;
 public:
     Optimizer (
-        std::vector<double> t_start,
         std::vector<double> t_lb,
         std::vector<double> t_ub,
         settingsPSO t_set_pso,
@@ -70,3 +70,5 @@ public:
         //return best_particle_objective_value;};
      void get_best_particle_param_values (std::vector<double> & temp);
 };
+
+#endif // OPTIMIZER

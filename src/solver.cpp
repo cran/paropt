@@ -1,3 +1,11 @@
+/* !!revision!!
+// remove RKs ?
+// do not print error --> instead store it and export file later
+
+error check if error is inf, NA etc.
+*/
+
+
 /*
 BSD 3-Clause License
 
@@ -26,6 +34,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "solver.hpp"
+
+typedef std::vector<double> VD;
+typedef std::vector<int> VI;
+typedef std::vector<std::vector<double> > MD;
+typedef std::vector<std::vector<int> > MI;
+typedef std::vector<std::string> VS;
+typedef Rcpp::DataFrame DF;
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
 #define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
@@ -194,8 +209,8 @@ double solver_bdf(std::vector<double> &param_combi_start, SEXP ode_system, time_
  return sum_of_least_squares/static_cast<double>(integration_times.length());
 }
 
-double solver_bdf_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, std::string speicherfile,
-std::vector<std::string> headers) {
+double solver_bdf_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, Rcpp::NumericMatrix &DF) {
+
 
   std::vector<double> init_state = solv_param_struc.init_state;
   std::vector<double> params_time_combi_vec = solv_param_struc.par_times;
@@ -268,30 +283,18 @@ std::vector<std::string> headers) {
      std::vector<double> temp_measured(init_state.size());
      //int num_states = init_state.size();
 
-     std::ofstream myfile;
-     myfile.open(speicherfile);
-     for(size_t i = 1; i < headers.size(); i++) {
-         myfile << headers[i];
-         myfile << "\t";
-     }
-     myfile << "time";
-     myfile << "\t";
-     myfile << "\n";
-     for(int i = 0; i < NV_LENGTH_S(y); i++) {
-         myfile << NV_Ith_S(y,i);
-         myfile << "\t";
-     }
-     myfile << integration_times[0];
-     myfile << "\t";
-     myfile << "\n";
 
+     for(int i = 0; i < NV_LENGTH_S(y); i++) {
+         DF(0 , i) = NV_Ith_S(y,i);
+     }
+
+     int counter = 1;
        for ( int ti = 1; ti < integration_times.size(); ti++) {
            for (int j = 1; j <= return_steps; j++) {
                return_time = integration_times[ti-1] +j/return_steps*(integration_times[ti]-integration_times[ti-1]);
                retval = CVode(cvode_mem, return_time, y, &t, CV_NORMAL);
                    for (int n = 0; n < NV_LENGTH_S(y); n++) {
-                     myfile << NV_Ith_S(y,n);
-                     myfile << "\t";
+                     DF(counter, n) = NV_Ith_S(y,n);
                        temp_measured[n] =  hs_harvest_state_combi_vec[hs_cut_idx_vec[n] * n + ti];
                        if(std::isnan(temp_measured[n])) { }
                        else {
@@ -299,12 +302,10 @@ std::vector<std::string> headers) {
                        //Rcpp::Rcerr << NV_Ith_S(y,n) << "\t" << temp_measured[n] << "\t" << return_time << std::endl;
                        }
                    }
-                   myfile << return_time;
-                   myfile << "\t";
-                   myfile << "\n";
                    if (check_retval(&retval, "CVode", 1)) {
                        break;}
            }
+           counter++;
        }
 
        N_VDestroy(y);
@@ -404,8 +405,7 @@ double solver_adams(std::vector<double> &param_combi_start, SEXP ode_system, tim
  return sum_of_least_squares/static_cast<double>(integration_times.length());
 }
 
-double solver_adams_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, std::string speicherfile,
-std::vector<std::string> headers) {
+double solver_adams_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, Rcpp::NumericMatrix &DF) {
 
   std::vector<double> init_state = solv_param_struc.init_state;
   std::vector<double> params_time_combi_vec = solv_param_struc.par_times;
@@ -468,30 +468,17 @@ std::vector<std::string> headers) {
      std::vector<double> temp_measured(init_state.size());
      //int num_states = init_state.size();
 
-     std::ofstream myfile;
-     myfile.open(speicherfile);
-     for(size_t i = 1; i < headers.size(); i++) {
-         myfile << headers[i];
-         myfile << "\t";
-     }
-     myfile << "time";
-     myfile << "\t";
-     myfile << "\n";
      for(int i = 0; i < NV_LENGTH_S(y); i++) {
-         myfile << NV_Ith_S(y,i);
-         myfile << "\t";
+         DF(0 , i) = NV_Ith_S(y,i);
      }
-     myfile << integration_times[0];
-     myfile << "\t";
-     myfile << "\n";
 
+     int counter = 1;
        for ( int ti = 1; ti < integration_times.size(); ti++) {
            for (int j = 1; j <= return_steps; j++) {
                return_time = integration_times[ti-1] +j/return_steps*(integration_times[ti]-integration_times[ti-1]);
                retval = CVode(cvode_mem, return_time, y, &t, CV_NORMAL);
                    for (int n = 0; n < NV_LENGTH_S(y); n++) {
-                     myfile << NV_Ith_S(y,n);
-                     myfile << "\t";
+                     DF(counter, n) = NV_Ith_S(y,n);
                        temp_measured[n] =  hs_harvest_state_combi_vec[hs_cut_idx_vec[n] * n + ti];
                        if(std::isnan(temp_measured[n])) { }
                        else {
@@ -499,9 +486,6 @@ std::vector<std::string> headers) {
                        //Rcpp::Rcerr << NV_Ith_S(y,n) << "\t" << temp_measured[n] << "\t" << return_time << std::endl;
                        }
                    }
-                   myfile << return_time;
-                   myfile << "\t";
-                   myfile << "\n";
                    if (check_retval(&retval, "CVode", 1)) {
                        break;}
 
@@ -597,8 +581,7 @@ double solver_erk(std::vector<double> &param_combi_start, SEXP ode_system, time_
  return sum_of_least_squares/static_cast<double>(integration_times.length());
 }
 
-double solver_erk_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, std::string speicherfile,
-std::vector<std::string> headers) {
+double solver_erk_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, Rcpp::NumericMatrix &DF) {
 
   std::vector<double> init_state = solv_param_struc.init_state;
   std::vector<double> params_time_combi_vec = solv_param_struc.par_times;
@@ -655,30 +638,18 @@ std::vector<std::string> headers) {
      std::vector<double> temp_measured(init_state.size());
      //int num_states = init_state.size();
 
-     std::ofstream myfile;
-     myfile.open(speicherfile);
-     for(size_t i = 1; i < headers.size(); i++) {
-         myfile << headers[i];
-         myfile << "\t";
-     }
-     myfile << "time";
-     myfile << "\t";
-     myfile << "\n";
      for(int i = 0; i < NV_LENGTH_S(y); i++) {
-       myfile << NV_Ith_S(y,i);
-       myfile << "\t";
+         DF(0 , i) = NV_Ith_S(y,i);
      }
-     myfile << integration_times[0];
-     myfile << "\t";
-     myfile << "\n";
+
+     int counter = 1;
 
        for ( int ti = 1; ti < integration_times.size(); ti++) {
            for (int j = 1; j <= return_steps; j++) {
                return_time = integration_times[ti-1] +j/return_steps*(integration_times[ti]-integration_times[ti-1]);
                retval = ERKStepEvolve(arkode_mem, return_time, y, &t, ARK_NORMAL);
                    for (int n = 0; n < NV_LENGTH_S(y); n++) {
-                       myfile << NV_Ith_S(y,n);
-                       myfile << "\t";
+                      DF(counter, n) = NV_Ith_S(y,n);
                        temp_measured[n] =  hs_harvest_state_combi_vec[hs_cut_idx_vec[n] * n + ti];
                        if(std::isnan(temp_measured[n])) { }
                        else {
@@ -686,9 +657,6 @@ std::vector<std::string> headers) {
                        //Rcpp::Rcerr << NV_Ith_S(y,n) << "\t" << temp_measured[n] << "\t" << return_time << std::endl;
                        }
                    }
-                   myfile << return_time;
-                   myfile << "\t";
-                   myfile << "\n";
                    if (check_retval(&retval, "CVode", 1)) {
                        break;}
            }
@@ -801,8 +769,7 @@ double solver_ark(std::vector<double> &param_combi_start, SEXP ode_system, time_
  return sum_of_least_squares/static_cast<double>(integration_times.length());
 }
 
-double solver_ark_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, std::string speicherfile,
-std::vector<std::string> headers) {
+double solver_ark_save(std::vector<double> &param_combi_start, SEXP ode_system, time_state_information solv_param_struc, Rcpp::NumericMatrix &DF) {
 
   std::vector<double> init_state = solv_param_struc.init_state;
   std::vector<double> params_time_combi_vec = solv_param_struc.par_times;
@@ -872,30 +839,18 @@ std::vector<std::string> headers) {
      std::vector<double> temp_measured(init_state.size());
      //int num_states = init_state.size();
 
-     std::ofstream myfile;
-     myfile.open(speicherfile);
-     for(size_t i = 1; i < headers.size(); i++) {
-         myfile << headers[i];
-         myfile << "\t";
-     }
-     myfile << "time";
-     myfile << "\t";
-     myfile << "\n";
      for(int i = 0; i < NV_LENGTH_S(y); i++) {
-        myfile << NV_Ith_S(y,i);
-        myfile << "\t";
-      }
-      myfile << integration_times[0];
-      myfile << "\t";
-      myfile << "\n";
+         DF(0 , i) = NV_Ith_S(y,i);
+     }
+
+     int counter = 1;
 
        for ( int ti = 1; ti < integration_times.size(); ti++) {
            for (int j = 1; j <= return_steps; j++) {
                return_time = integration_times[ti-1] +j/return_steps*(integration_times[ti]-integration_times[ti-1]);
                retval = ARKStepEvolve(arkode_mem, return_time, y, &t, ARK_NORMAL);
                    for (int n = 0; n < NV_LENGTH_S(y); n++) {
-                     myfile << NV_Ith_S(y,n);
-                       myfile << "\t";
+                     DF(counter, n) = NV_Ith_S(y,n);
                        temp_measured[n] =  hs_harvest_state_combi_vec[hs_cut_idx_vec[n] * n + ti];
                        if(std::isnan(temp_measured[n])) { }
                        else {
@@ -903,9 +858,6 @@ std::vector<std::string> headers) {
                        //Rcpp::Rcerr << NV_Ith_S(y,n) << "\t" << temp_measured[n] << "\t" << return_time << std::endl;
                        }
                    }
-                   myfile << return_time;
-                   myfile << "\t";
-                   myfile << "\n";
                    if (check_retval(&retval, "CVode", 1)) {
                      break;}
            }

@@ -2,10 +2,10 @@ $(info The compilation root directory is: $(ROOT_DIR))
 $(info The name of the shared library to be created is: $(SHLIB))
 
 CXX_STD=CXX11
-PKG_CPPFLAGS=-I../inst/include -I../inst
+PKG_CPPFLAGS=-fno-common -I../inst/include -I../inst
 PKG_CXXFLAGS= $(SHLIB_OPENMP_CXXFLAGS) -I../inst/include -I../inst
-PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -L../inst -lsundials
-PKG_LIB = -std = gnu++11
+PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -L../inst -lsundials -lpthread -fopenmp
+
 LIBS=-L./ -L../inst 
 
 .PHONY: all ../inst/libsundials.a
@@ -62,7 +62,8 @@ SOURCES_ARKODE = ./sundials/arkode/arkode.c \
 ./sundials/arkode/arkode_mristep_io.c \
 ./sundials/arkode/arkode_root.c
 
-SOURCES =  interface_fct.cpp solver.cpp basic_functions.cpp param_interpolation.cpp params.cpp state.cpp RcppExports.cpp optimizer.cpp solve_ode_system.cpp ode_example.cpp 
+#SOURCES =  interface_fct.cpp solver.cpp basic_functions.cpp param_interpolation.cpp params.cpp state.cpp RcppExports.cpp optimizer.cpp solve_ode_system.cpp ode_example.cpp tests.cpp test_solver.cpp test_paramsort_spline.cpp function_access_in_rcpp.cpp solver_Rcpp_interface.cpp optimizer_access_in_Rcpp.cpp optimizer_Rcpp_interface.cpp modify_dataframe.cpp
+SOURCES =  interface_fct.cpp solver.cpp basic_functions.cpp param_interpolation.cpp params.cpp state.cpp RcppExports.cpp optimizer.cpp solve_ode_system.cpp ode_example.cpp function_access_in_rcpp.cpp solver_Rcpp_interface.cpp optimizer_access_in_Rcpp.cpp optimizer_Rcpp_interface.cpp modify_dataframe.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 

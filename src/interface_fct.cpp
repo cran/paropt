@@ -1,39 +1,124 @@
+/* !!revision!!
+improve error handling: try; catch
+// better name of fct?
+*/
+
 #include "header.hpp"
 #include "optimizer.hpp"
 #include "solver.hpp"
 
 #define NA std::nan("l")
 
-  // [[Rcpp::export]]
-  Rcpp::List interface_function(Rcpp::NumericVector integration_times,
+typedef std::vector<double> VD;
+typedef std::vector<int> VI;
+typedef std::vector<std::vector<double> > MD;
+typedef std::vector<std::vector<int> > MI;
+typedef std::vector<std::string> VS;
+typedef Rcpp::DataFrame DF;
+
+//' Optimize parameters of ode-systems
+//' @export
+//' @useDynLib paropt, .registration = TRUE
+//' @importFrom Rcpp evalCpp
+//' @description Optimize parameters used in an ode equation in order to match values defined in the state-data.frame
+//'
+//' @param integration_times a vector containing the time course to solve the ode-system (see Details for more Information)
+//'
+//' @param ode_system the ode-system which will be integrated by the solver (see Details for more Information).
+//'
+//' @param relative_tolerance a number defining the relative tolerance used by the ode-solver.
+//'
+//' @param absolute_tolerances a vector containing the absolute tolerance(s) for each state used by the ode-solver.
+//'
+//' @param lb a data.frame containing the lower bounds for the parameters (see Details for more Information).
+//'
+//' @param ub a data.frame containing the upper bounds for the parameters (see Details for more Information).
+//'
+//' @param states a data.frame containing the predetermined course of the states (see Details for more Information).
+//'
+//' @param npop a number defining the number of particles used by the Particle Swarm Optimizer.
+//'
+//' @param ngen a number defining the number of generations the Particle Swarm Optimizer (PSO) should run.
+//'
+//' @param error a number defining a sufficient small error. When the PSO reach this value optimization is stopped.
+//'
+//' @param solvertype a string defining the type of solver which should be used (bdf, ADAMS, ERK or ARK. see Details for more Information).
+//'
+//' @details The vector containing the time course to solve the ode-system should contain
+//' the same entries as the time vector in the state-data.frame (it can be also be a different variable instead of time).
+//'
+//' @details The ode system should be a Rcpp-function with a specific signature Rcpp::NumericVector ode(double time, std::vector<double> parameter, Rcpp::NumericVector states).
+//' The first entry defines the time point when the function is called.
+//' The second argument defines the parameter which should be optimized. There exist two different types of parameters.
+//' Parameters can be either constant or variabel. In order to calculate a variable parameter at a specific timepoint the Catmull-Rom-Spline is used.
+//' This vector contains the already interpolated parameters at the specific time-point, in the same order as defined in the data.frames containing the lower- and upper-boundaries.
+//' The last argument is a vector containing the states in the same order as defined in the data.frame containing the state-information.
+//' Thus, it is obligatory that the state-derivates in the ode-system are in the same order defined as in the data.frame.
+//' Furthermore, it is mandatory that the function return a Rcpp::NumericVector with the same dimension as the input vector containing the states.
+//' The resulting vector has to contain the right hand side of the ode-system.
+//'
+//' @details For constant parameters use only the first row (below the headers) if other parameters are variable use “NA“ in the following rows for the constant parameters.
+//' @details For variable parameters at least four points are needed. If a variable parameter is not available at every time point use “NA“ instead. 
+//'
+//' @details The two data.frames containg lower and upper-boundaries need the parameter in the same order. 
+//'
+//' @details The data.frame containing the state information should hold the time course in the first column.
+//' The header-name time is compulsory. The following columns contain the states. Take care that the states are in the same order defined in the ode system.
+//' If a state is not available use “NA“. This is possible for every time points except the first one.
+//' The ode solver need a start value for each state which is extracted from the first row of this file (below the headers).
+//'
+//' @details The error between the solver output and the measured states is the sum of the absolute differences divided by the number of time points.
+//' It is crucial that the states are in the same order in the text file cointaining the state-information and in the ode-system to compare the states correctly!
+//'
+//' @details For solving the ode system the SUNDIALS Software is used (https://computing.llnl.gov/projects/sundials).
+//' The last argument defines the solver-type which is used during optimization:
+//' “bdf“,  “ADAMS“, “ERK“ or “ARK“. bdf = Backward Differentiation Formulas, ADAMS = Adams-Moulton, ERK = explicite Runge-Kutta and ARK = implicite Runge-Kutta.
+//' All solvers are used in the NORMAL-Step method in a for-loop using the time-points defined in the text-file containing the states as output-points.
+//' The bdf- and ARK-Solver use the SUNLinSol_Dense as linear solver. Notably here is that for the ARK-Solver the ode system is fully implicit solved (not only part of it).
+//'
+//' Examples can be found in the vignette.
+// [[Rcpp::export]]
+  Rcpp::List optimizer(Rcpp::NumericVector integration_times,
                      SEXP ode_system, double relative_tolerance,
-                     Rcpp::NumericVector absolute_tolerances, std::string start,
-                       std::string lower, std::string upper, std::string states,
-                     int npop, int ngen, double error, std::string where_to_save_output_states,
-                   std::string where_to_save_output_parameter,
+                     Rcpp::NumericVector absolute_tolerances,
+                       Rcpp::DataFrame lb, Rcpp::DataFrame ub, Rcpp::DataFrame states,
+                     int npop, int ngen, double error,
                  std::string solvertype) {
 
-    std::vector<int> params_cut_idx_vec;
-    std::vector<double> params_time_combi_vec;
-    std::vector<double> param_combi_start;
-    std::vector<double> param_combi_lb;
-    std::vector<double> param_combi_ub;
-    std::vector<std::string> header_parameter;
 
-    Import_Parameter(start, lower, upper, params_cut_idx_vec, params_time_combi_vec,
-    param_combi_start, param_combi_lb, param_combi_ub, header_parameter);
+     // extract parameters
 
-    std::vector<int> hs_cut_idx_vec;
-    std::vector<double> hs_time_combi_vec;
-    std::vector<double> hs_harvest_state_combi_vec;
-    std::vector<std::string> header_states;
+    //enum IMPORT_PARAMETER ret = IMPORT_PARAMETER::UNDEFINED;
+    VI params_cut_idx_vec;
+    VD params_time_combi_vec;
+    VD param_combi_lb;
+    VD param_combi_ub;
+    VS header_parameter;
 
+    ip (lb, ub, params_cut_idx_vec, params_time_combi_vec,
+                     param_combi_lb, param_combi_ub, header_parameter);
+
+    // create randomly param_combi_start vector
+
+    VD param_combi_start(param_combi_lb.size());
+    for(unsigned int i = 0; i < param_combi_lb.size(); i++) {
+      double rd = arma::randu();
+      param_combi_start[i] = param_combi_lb[i] + (param_combi_ub[i] - param_combi_lb[i])*rd;
+    }
+
+    // extract states
+    VI hs_cut_idx_vec;
+    VD hs_time_combi_vec;
+    VD hs_harvest_state_combi_vec;
+    VS header_states;
     Import_states(states, hs_cut_idx_vec, hs_time_combi_vec, hs_harvest_state_combi_vec, header_states);
 
+    // check if ngen is positiv
     if(ngen <= 0) {
       Rcpp::stop("\nERROR: number of generations should be a positiv number");
     }
 
+    // extract initial values
     int tmpcount=0;
 
     std::vector<double> init_state ( hs_cut_idx_vec.size() );
@@ -42,6 +127,7 @@
       tmpcount += hs_cut_idx_vec[i];
     }
 
+    // check absolute_tolerances
     if(static_cast<int>(init_state.size()) > absolute_tolerances.length()) {
       Rcpp::stop("\nERROR: absolute tolerances not defined for each state");
       //exit (EXIT_FAILURE);
@@ -52,6 +138,8 @@
       //exit (EXIT_FAILURE);
     }
 
+    // check time in parameters vs state time
+    // ============================================================
     std::vector<double>::iterator max_time_param_vector = std::max_element(params_time_combi_vec.begin(), params_time_combi_vec.end());
     std::vector<double>::iterator min_time_param_vector = std::min_element(params_time_combi_vec.begin(), params_time_combi_vec.end());
     std::vector<double>::iterator max_time_harvest_vector = std::max_element(hs_time_combi_vec.begin(), hs_time_combi_vec.end());
@@ -91,7 +179,9 @@
         Rcpp::warning("\nERROR: integration_times has not the same entries as the time vector of state input");
       }
     }
+    // ============================================================
 
+    // check size of parameters either constant length = 1 or length>4 => variable
     for(size_t i = 0; i < params_cut_idx_vec.size(); i++) {
       if(params_cut_idx_vec[i] == 1 || params_cut_idx_vec[i] >=4) {
         // everything is fine. 4 values needed for spline
@@ -100,12 +190,13 @@
       }
     }
 
+    // checks of ODE-System
+    // ==================================================================
     if(TYPEOF(ode_system) != CLOSXP) {
       Rcpp::stop("\nERROR: type of odesystem should be closure");
       //exit (EXIT_FAILURE);
     }
 
-    // ==================================================================
     Rcpp::NumericVector new_states(init_state.size());
     realtype time_param_sort = params_time_combi_vec[0];
     std::vector<double> parameter_input;
@@ -154,6 +245,8 @@
     }
     // ==================================================================
 
+    // Test integration
+    // ==================================================================
     time_state_information param_model;
 
     param_model.init_state = init_state;
@@ -167,19 +260,23 @@
     param_model.absolute_tolerances = absolute_tolerances;
 
     // test integration
+    Rcpp::NumericMatrix DF(integration_times.size(),init_state.size());
     if(solvertype == "bdf") {
-      solver_bdf_save(param_combi_start, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_bdf_save(param_combi_start, ode_system, param_model, DF);
     }
     else if(solvertype == "ADAMS") {
-      solver_adams_save(param_combi_start, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_adams_save(param_combi_start, ode_system, param_model, DF);
     } else if(solvertype == "ERK") {
-      solver_erk_save(param_combi_start, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_erk_save(param_combi_start, ode_system, param_model, DF);
     } else if(solvertype == "ARK") {
-      solver_ark_save(param_combi_start, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_ark_save(param_combi_start, ode_system, param_model, DF);
     } else {
       Rcpp::stop("\nERROR: Unknown solvertyp");
     }
+    // ==================================================================
 
+    // Optimization
+    // ==================================================================
     settingsPSO param_pso;
 
     param_pso.err_tol = error;
@@ -203,29 +300,39 @@
       Rcpp::stop("\nERROR: Unknown solvertyp");
     }
 
-    Optimizer optimizing(param_combi_start,param_combi_lb,param_combi_ub,param_pso,param_model, fctptr_to_solver ,ode_system);
+    Optimizer optimizing(param_combi_lb,param_combi_ub,param_pso,param_model, fctptr_to_solver ,ode_system);
 
     double smsq;
     smsq = optimizing.pso();
     std::vector<double> temp;
     optimizing.get_best_particle_param_values(temp);
+    // ==================================================================
 
+    // solve ODE-System with optimized parameters
+    // ==================================================================
     if(solvertype == "bdf") {
-    solver_bdf_save(temp, ode_system, param_model, where_to_save_output_states, header_states);
+    solver_bdf_save(temp, ode_system, param_model, DF);
     }
     else if(solvertype == "ADAMS") {
-      solver_adams_save(temp, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_adams_save(temp, ode_system, param_model, DF);
     }
     else if(solvertype == "ERK") {
-      solver_erk_save(temp, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_erk_save(temp, ode_system, param_model, DF);
     }
     else if(solvertype == "ARK") {
-      solver_ark_save(temp, ode_system, param_model, where_to_save_output_states, header_states);
+      solver_ark_save(temp, ode_system, param_model, DF);
     } else {
       Rcpp::stop("\nERROR: Unknown solvertyp");
     }
+    Rcpp::CharacterVector CV(header_states.size()-1);
+    for(unsigned int i = 1; i < header_states.size(); i++) {
+      CV[i-1] = header_states[i];
+    }
+    colnames(DF) = CV;
+    // ==================================================================
 
     // export parameter
+    // ==================================================================
     int idxcount = 0;
     std::vector<std::vector<double> > params_export(params_cut_idx_vec.size());
     for(size_t i = 0; i < params_cut_idx_vec.size(); i++) {
@@ -236,37 +343,28 @@
       }
     }
 
-    std::ofstream myfile;
-    myfile.open(where_to_save_output_parameter);
-    for(size_t i = 0; i < header_parameter.size(); i++) {
-        myfile << header_parameter[i];
-        myfile << "\t";
-    }
-    myfile << "\n";
-
     std::vector<int>::iterator max_cut_vector = std::max_element(params_cut_idx_vec.begin(), params_cut_idx_vec.end());
     int idx_largest_parameter = std::max_element(params_cut_idx_vec.begin(), params_cut_idx_vec.end()) - params_cut_idx_vec.begin();
 
+    Rcpp::NumericMatrix PAROUT(*max_cut_vector, params_export.size()+1);
     int rowcounter = 0;
     while(rowcounter < *max_cut_vector) {
       for(size_t i = 0; i < params_export.size()+1; i++) {
 
         if(i == 0) {
-          myfile << params_time_combi_vec[params_cut_idx_vec[idx_largest_parameter] + rowcounter];
-          myfile << "\t";
+          PAROUT(rowcounter, i) = params_time_combi_vec[params_cut_idx_vec[idx_largest_parameter] + rowcounter];
         } else {
         if(rowcounter < params_cut_idx_vec[i-1]) { // <=
-          myfile << params_export[i-1][rowcounter];
-          myfile << "\t";} else {
-            myfile << "NA";
-            myfile << "\t";
+          PAROUT(rowcounter, i) = params_export[i-1][rowcounter];
+        } else {
+          PAROUT(rowcounter, i) = NA;
           }
         }
       }
-      myfile << "\n";
       rowcounter++;
     }
 
+    // ==================================================================
 
     return Rcpp::List::create(Rcpp::Named("Error of best parameters:") = smsq,
                        Rcpp::Named("Error set by user:") = error,
@@ -274,5 +372,7 @@
                        Rcpp::Named("Number of generations for PSO:") = ngen,
                        Rcpp::Named("Solver set by user:") = solvertype,
                        Rcpp::Named("relative tolerance:") = relative_tolerance,
-                       Rcpp::Named("absolute tolerance(s):") = absolute_tolerances);
+                       Rcpp::Named("absolute tolerance(s):") = absolute_tolerances,
+                     Rcpp::Named("Parameter:") = PAROUT,
+                   Rcpp::Named("States:") = DF);
   }

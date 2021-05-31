@@ -1,11 +1,9 @@
 CXX_STD=CXX11
 
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
-
-PKG_CPPFLAGS=-I../inst -I../inst/include
+PKG_CPPFLAGS= -I../inst -I../inst/include
 PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -I../inst -I../inst/include
-PKG_LIBS=  $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)  -L../inst -lsundials
-LIBS=-L./ -L../inst
+PKG_LIBS=  $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)  -L../inst -lsundials -lpthread -fopenmp 
+LIBS=-L./ -L../inst 
 
 .PHONY: all ../inst/libsundials.a
 
@@ -63,15 +61,13 @@ SOURCES_ARKODE = ./sundials/arkode/arkode.c \
 ./sundials/arkode/arkode_root.c
 
 
-SOURCES =  interface_fct.cpp solver.cpp basic_functions.cpp param_interpolation.cpp params.cpp state.cpp RcppExports.cpp optimizer.cpp solve_ode_system.cpp ode_example.cpp
+SOURCES =  interface_fct.cpp solver.cpp basic_functions.cpp param_interpolation.cpp params.cpp state.cpp RcppExports.cpp optimizer.cpp solve_ode_system.cpp ode_example.cpp function_access_in_rcpp.cpp solver_Rcpp_interface.cpp optimizer_access_in_Rcpp.cpp optimizer_Rcpp_interface.cpp modify_dataframe.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
 SOURCES_SUNDIALS_ALL= $(SOURCES_NVECSERIAL) $(SOURCES_SUNDIALS) $(SOURCES_SUNMAT) $(SOURCES_SUNLINSOL_DENSE) $(SOURCES_SUNLINSOL_BAND) $(SOURCES_SUNNONLINSOL) $(SOURCES_CVODE) $(SOURCES_ARKODE)
 
 OBJECTS_SUNDIALS_ALL = $(SOURCES_SUNDIALS_ALL:.c=.o)
-
-#OBJECTS= interface_fct.o solver.o basic_functions.o param_interpolation.o params.o state.o RcppExports.o optimizer.o tests.o test_solver.o test_paramsort_spline.o #solve_ode_system.o twostage.o comparison_fct.o $(SOURCES_SUNDIALS_ALL:.c=.o)
 
 all: $(SHLIB)
 
@@ -83,18 +79,18 @@ $(SHLIB): $(OBJECTS_SUNDIALS_ALL) ../inst/libsundials.a
 	$(AR) -crvs ../inst/libsundials.a $(OBJECTS_SUNDIALS_ALL)
 	$(RANLIB) $@
 
-clean:	
-	(cd ./sundials/sundials; rm -f *.o) 
-	(cd ./sundials/nvector/serial;rm -f *.o) 
+clean:
+	(cd ./sundials/sundials; rm -f *.o)
+	(cd ./sundials/nvector/serial;rm -f *.o)
 	(cd ./sundials/sunmatrix/dense;rm -f *.o)
-	(cd ./sundials/sunmatrix/band;rm -f *.o) 
-	(cd ./sundials/sunlinsol/dense;rm -f *.o) 
-	(cd ./sundials/sunlinsol/band;rm -f *.o) 
-	(cd ./sundials/sunnonlinsol/newton;rm -f *.o) 
-	(cd ./sundials/sunnonlinsol/fixedpoint;rm -f *.o) 
-	(cd ./sundials/cvode;rm -f *.o) 
-	(cd ./sundials/arkode;rm -f *.o) 
-	(cd ./sundials/arkode;rm -f *.o) 
-	rm -f *.dll 
-	rm -f *.exe 
+	(cd ./sundials/sunmatrix/band;rm -f *.o)
+	(cd ./sundials/sunlinsol/dense;rm -f *.o)
+	(cd ./sundials/sunlinsol/band;rm -f *.o)
+	(cd ./sundials/sunnonlinsol/newton;rm -f *.o)
+	(cd ./sundials/sunnonlinsol/fixedpoint;rm -f *.o)
+	(cd ./sundials/cvode;rm -f *.o)
+	(cd ./sundials/arkode;rm -f *.o)
+	(cd ./sundials/arkode;rm -f *.o)
+	rm -f *.dll
+	rm -f *.exe
 	(cd ../inst;rm -f *.a)

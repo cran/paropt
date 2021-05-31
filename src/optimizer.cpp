@@ -1,3 +1,17 @@
+/* !!revision!!
+completly set up a new PSO.
+
+1. classical pso
+2. pso as clerc propose it
+3. Initialisation in own fct
+4. calculation of neighberhood in own fct
+
+5. implement TPO
+*/
+
+
+
+
 /*################################################################################
   ##
   ##   Copyright (C) 2016-2018 Keith O'Hara
@@ -39,7 +53,6 @@ For details see: https://github.com/kthohr/optim
 #include "optimizer.hpp"
 
 Optimizer::Optimizer(
-        std::vector<double> t_start,
         std::vector<double> t_lb,
         std::vector<double> t_ub,
         settingsPSO t_set_pso,
@@ -47,11 +60,9 @@ Optimizer::Optimizer(
         double (*fctptr2)(std::vector<double> &param_vec, SEXP ode_system, time_state_information &model),
         SEXP t_odes) {
 
-    m_start.resize(t_start.size());
     m_lb.resize(t_lb.size());
     m_ub.resize(t_ub.size());
     for(size_t i = 0; i < t_lb.size(); i++) {
-        m_start[i] = t_start[i];
         m_lb[i] = t_lb[i];
         m_ub[i] = t_ub[i];
     }
@@ -110,7 +121,6 @@ double Optimizer::pso() { // (labled with ! need check)
   std::vector<std::vector<int> > neighberhood(n_pop); // neighberhood containts for each particle informants
   arma::rowvec real_values(n_vals);
   arma::rowvec gravity(n_vals);
-  arma::vec start_values(m_start.size());
   arma::vec lower_start_bounds(m_lb.size());
   arma::vec upper_start_bounds(m_ub.size());
   // =============================
@@ -118,7 +128,6 @@ double Optimizer::pso() { // (labled with ! need check)
   // define borders for start values
   // =============================
   for(size_t i = 0; i < m_lb.size(); i++) {
-      start_values(i) = m_start[i];
       lower_start_bounds(i) = m_lb[i];
       upper_start_bounds(i) = m_ub[i];
   }
@@ -129,8 +138,7 @@ double Optimizer::pso() { // (labled with ! need check)
 
   if(classical_pso == true) {
     for (int i = 0; i < n_pop; i++){
-      if(i == 0) {
-      P.row(i) = start_values.t();}
+      if(i == 0) {}
       GetRNGstate();
       P.row(i) = lower_start_bounds.t() + (upper_start_bounds.t() - lower_start_bounds.t())%arma::randu(1,n_vals);
       PutRNGstate();
@@ -272,6 +280,18 @@ double Optimizer::pso() { // (labled with ! need check)
       arma::vec local_best_vec = best_vecs.row(best_neighberhood_particel).t();
 
       if(classical_pso == true) {
+              double v = 0.9; 
+              double chi;
+              chi = 2*v;
+              GetRNGstate();
+              double omega = par_c_cog*arma::randu() + par_c_soc*arma::randu();
+              if(omega < 4.) {
+                omega = 4.;
+              }
+              PutRNGstate();
+              chi = chi/std::abs(2. - omega - std::sqrt(omega*(omega -4.) ));
+
+
             GetRNGstate();
             V.row(i) = par_w*V.row(i) + par_c_cog*arma::randu(1,n_vals)%(best_vecs.row(i) - P.row(i)) + par_c_soc*arma::randu(1,n_vals)%(local_best_vec.t() - P.row(i));
             PutRNGstate();
