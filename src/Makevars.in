@@ -1,9 +1,10 @@
 CXX_STD=CXX11
 
 PKG_CPPFLAGS= -I../inst -I../inst/include
-PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) -I../inst -I../inst/include
-PKG_LIBS=  $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)  -L../inst -lsundials -lpthread -fopenmp 
+PKG_CXXFLAGS= @openmp@ -I../inst -I../inst/include
+PKG_LIBS=  @openmp@ $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)  -L../inst -lsundials -lpthread 
 LIBS=-L./ -L../inst 
+
 
 .PHONY: all ../inst/libsundials.a
 
@@ -50,9 +51,7 @@ SOURCES_ARKODE = ./sundials/arkode/arkode.c \
 ./sundials/arkode/arkode_bbdpre.c \
 ./sundials/arkode/arkode_butcher.c \
 ./sundials/arkode/arkode_butcher_dirk.c \
-./sundials/arkode/arkode_butcher_erk.c \
-./sundials/arkode/arkode_erkstep.c \
-./sundials/arkode/arkode_erkstep_io.c \
+./sundials/arkode/arkode_butcher_erk.c ./sundials/arkode/arkode_erkstep.c ./sundials/arkode/arkode_erkstep_io.c \
 ./sundials/arkode/arkode_interp.c \
 ./sundials/arkode/arkode_io.c \
 ./sundials/arkode/arkode_ls.c \

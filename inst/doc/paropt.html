@@ -191,28 +191,28 @@ p:first-of-type {
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Rcpp::NumericVector ode_system(<span class="dt">double</span> t, <span class="bu">std::</span>vector&lt;<span class="dt">double</span>&gt; params,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                               Rcpp::NumericVector states) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Rcpp<span class="op">::</span>NumericVector ode_system<span class="op">(</span><span class="dt">double</span> t<span class="op">,</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> params<span class="op">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                               Rcpp<span class="op">::</span>NumericVector states<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// set dimension of vector which should be returned</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  Rcpp::NumericVector states_deriv(<span class="dv">2</span>); <span class="co">//two states in the example above (prey and predator)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  Rcpp<span class="op">::</span>NumericVector states_deriv<span class="op">(</span><span class="dv">2</span><span class="op">);</span> <span class="co">//two states in the example above (prey and predator)</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// store parameters in variables</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> a = params[<span class="dv">0</span>];</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> b = params[<span class="dv">1</span>];</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> c = params[<span class="dv">2</span>];</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> d = params[<span class="dv">3</span>];</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> a <span class="op">=</span> params<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> b <span class="op">=</span> params<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> c <span class="op">=</span> params<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> d <span class="op">=</span> params<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">// store states in variables</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> predator = states[<span class="dv">0</span>]; </span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> prey = states[<span class="dv">1</span>]; </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> predator <span class="op">=</span> states<span class="op">[</span><span class="dv">0</span><span class="op">];</span> </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> prey <span class="op">=</span> states<span class="op">[</span><span class="dv">1</span><span class="op">];</span> </span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">// the actual ode-system            </span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> ddtpredator = states_deriv[<span class="dv">0</span>] = predator*c*prey - predator*d;</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> ddtprey = states_deriv[<span class="dv">1</span>] = prey*a - prey*b*predator;</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> ddtpredator <span class="op">=</span> states_deriv<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> predator<span class="op">*</span>c<span class="op">*</span>prey <span class="op">-</span> predator<span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> ddtprey <span class="op">=</span> states_deriv<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> prey<span class="op">*</span>a <span class="op">-</span> prey<span class="op">*</span>b<span class="op">*</span>predator<span class="op">;</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> states_deriv;</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> states_deriv<span class="op">;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">/*** R</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co">path &lt;- system.file(&quot;examples&quot;, package = &quot;paropt&quot;)</span></span>
@@ -263,35 +263,35 @@ p:first-of-type {
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::depends(paropt)]]</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::plugins(cpp11)]]</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="dt">int</span> (*OS)(<span class="dt">double</span> &amp;t, <span class="bu">std::</span>vector&lt;<span class="dt">double</span>&gt; &amp;params, <span class="bu">std::</span>vector&lt;<span class="dt">double</span>&gt; &amp;states);</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="dt">int</span> <span class="op">(*</span>OS<span class="op">)(</span><span class="dt">double</span> <span class="op">&amp;</span>t<span class="op">,</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">&amp;</span>params<span class="op">,</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">&amp;</span>states<span class="op">);</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> ode_system(<span class="dt">double</span> &amp;t, <span class="bu">std::</span>vector&lt;<span class="dt">double</span>&gt; &amp;params, <span class="bu">std::</span>vector&lt;<span class="dt">double</span>&gt; &amp; states) {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> ode_system<span class="op">(</span><span class="dt">double</span> <span class="op">&amp;</span>t<span class="op">,</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">&amp;</span>params<span class="op">,</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;</span> <span class="op">&amp;</span> states<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// do not use any R-Code or R-Objects if the optimzation should run in parallel.</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Users have to guarantee that the function can be called by several threads in parallel</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// define parameters (vector params contain the parameter in the order as defined in the corresponding textfiles)</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> a = params[<span class="dv">0</span>];</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> b = params[<span class="dv">1</span>];</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> c = params[<span class="dv">2</span>];</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> d = params[<span class="dv">3</span>];</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> a <span class="op">=</span> params<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> b <span class="op">=</span> params<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> c <span class="op">=</span> params<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> d <span class="op">=</span> params<span class="op">[</span><span class="dv">3</span><span class="op">];</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// states have to be in the same order as specified in the textfile &quot;states_LV.txt&quot; (Otherwise the error-calculation does not work) </span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> n1 = states[<span class="dv">0</span>];</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> n2 = states[<span class="dv">1</span>];</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> n1 <span class="op">=</span> states<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> n2 <span class="op">=</span> states<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  states[<span class="dv">0</span>] = n1*c*n2 - n1*d;</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  states[<span class="dv">1</span>] = n2*a - n2*b*n1;</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  states<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> n1<span class="op">*</span>c<span class="op">*</span>n2 <span class="op">-</span> n1<span class="op">*</span>d<span class="op">;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  states<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> n2<span class="op">*</span>a <span class="op">-</span> n2<span class="op">*</span>b<span class="op">*</span>n1<span class="op">;</span></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>Rcpp::XPtr&lt;OS&gt; test_optimization() {</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  Rcpp::XPtr&lt;OS&gt; xpfun = Rcpp::XPtr&lt;OS&gt;(<span class="kw">new</span> OS(&amp;ode_system));</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>Rcpp<span class="op">::</span>XPtr<span class="op">&lt;</span>OS<span class="op">&gt;</span> test_optimization<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  Rcpp<span class="op">::</span>XPtr<span class="op">&lt;</span>OS<span class="op">&gt;</span> xpfun <span class="op">=</span> Rcpp<span class="op">::</span>XPtr<span class="op">&lt;</span>OS<span class="op">&gt;(</span><span class="kw">new</span> OS<span class="op">(&amp;</span>ode_system<span class="op">));</span></span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> xpfun;</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> xpfun<span class="op">;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
@@ -373,10 +373,10 @@ prey
 2
 </td>
 <td style="text-align:right;">
-0.4189921
+0.5446191
 </td>
 <td style="text-align:right;">
-0.5764625
+0.9717305
 </td>
 </tr>
 <tr>
@@ -384,10 +384,10 @@ prey
 4
 </td>
 <td style="text-align:right;">
-0.7991164
+0.0595707
 </td>
 <td style="text-align:right;">
-0.8978914
+0.0508758
 </td>
 </tr>
 <tr>
@@ -395,10 +395,10 @@ prey
 6
 </td>
 <td style="text-align:right;">
-0.2532048
+0.8024127
 </td>
 <td style="text-align:right;">
-0.0041058
+0.6833731
 </td>
 </tr>
 <tr>
@@ -406,10 +406,10 @@ prey
 8
 </td>
 <td style="text-align:right;">
-0.0946872
+0.3180103
 </td>
 <td style="text-align:right;">
-0.1865031
+0.1617264
 </td>
 </tr>
 <tr>
@@ -417,10 +417,10 @@ prey
 10
 </td>
 <td style="text-align:right;">
-0.7755911
+0.8571834
 </td>
 <td style="text-align:right;">
-0.4503524
+0.0382783
 </td>
 </tr>
 <tr>
@@ -428,7 +428,7 @@ prey
 12
 </td>
 <td style="text-align:right;">
-0.7203151
+0.2734466
 </td>
 <td style="text-align:right;">
 NA
@@ -439,10 +439,10 @@ NA
 14
 </td>
 <td style="text-align:right;">
-0.6299586
+0.9054123
 </td>
 <td style="text-align:right;">
-0.9764701
+0.0171890
 </td>
 </tr>
 <tr>
@@ -450,10 +450,10 @@ NA
 16
 </td>
 <td style="text-align:right;">
-0.5297151
+0.7481677
 </td>
 <td style="text-align:right;">
-0.4862932
+0.3327260
 </td>
 </tr>
 <tr>
@@ -461,10 +461,10 @@ NA
 18
 </td>
 <td style="text-align:right;">
-0.6223646
+0.3052091
 </td>
 <td style="text-align:right;">
-0.3544911
+0.9640896
 </td>
 </tr>
 <tr>
@@ -472,10 +472,10 @@ NA
 20
 </td>
 <td style="text-align:right;">
-0.7995836
+0.6480681
 </td>
 <td style="text-align:right;">
-0.9461097
+0.8125060
 </td>
 </tr>
 <tr>
@@ -483,10 +483,10 @@ NA
 22
 </td>
 <td style="text-align:right;">
-0.5111380
+0.3938566
 </td>
 <td style="text-align:right;">
-0.9760273
+0.0600567
 </td>
 </tr>
 <tr>
@@ -494,10 +494,10 @@ NA
 24
 </td>
 <td style="text-align:right;">
-0.4478226
+0.6221504
 </td>
 <td style="text-align:right;">
-0.6192178
+0.8747358
 </td>
 </tr>
 </tbody>
