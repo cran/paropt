@@ -1,7 +1,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
-## ---- eval = FALSE, echo = TRUE-----------------------------------------------
+## ----eval = FALSE, echo = TRUE------------------------------------------------
 #  # Optimize (all parameters are constant)
 #  ode <- function(t, y, ydot, parameter) {
 #    a_db = at(parameter, 1)
@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #  plot(states$time, states$n2, type = "l")
 #  points(insilico$time, insilico$n2, type = "l", col = "darkred")
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # Optimize (parameter a,b and c are constant. d is variable!)
 #  r <- function(a) {
 #    c(a, rep(NA, 3))

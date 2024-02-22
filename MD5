@@ -1,4 +1,4 @@
-287a8124aa1f161b7885ecc0b14d2184 *DESCRIPTION
+0c078a446e7f6f254dec7b79b17068b7 *DESCRIPTION
 1fdea3c7b140e2654219f2f99cf132f7 *NAMESPACE
 69b4d694e9d0ee364bfdcd7129cdf582 *NEWS
 7a9a1fe0f4ad5d3eceeb6a3f8735cf41 *R/RcppExports.R
@@ -6,11 +6,11 @@
 14e065bec0a74245cbc1a55ebe63aa2a *R/optimizer.R
 416413bc5ffc319d3e3a3d193d01e9b1 *R/solver.R
 e5428ea1c3ea40a826063fd45a05caf3 *R/zzz.R
-c2efb07a708f51ffc3e74359bb63d93d *build/vignette.rds
+185dbdb1c5c6c956925dc7c973d5ce3d *build/vignette.rds
 1cc6752391ed57771e192252c5d4e2f9 *inst/AUTHORS
-2b54e6a7dce8bc44a2d25c3d3be9700c *inst/doc/paropt.R
+fd13c70eb094de36bdd5f8251df34786 *inst/doc/paropt.R
 7b3a2cde3eaa1a2b80f5d9a0efe91474 *inst/doc/paropt.Rmd
-15874f76dd8c797fc69a63e68707ec43 *inst/doc/paropt.pdf
+787802d56fb7eaeac53423fb4a9ac234 *inst/doc/paropt.pdf
 feb8a6436ca09997dbdfdfba92dca9fe *inst/examples/states_LV.txt
 4b846de61857a5f265b2002c228f5e39 *inst/include/cvode/cvode.h
 e444af4854aa91a0fdbd026759d7ffa1 *inst/include/cvode/cvode_diag.h
@@ -60,8 +60,8 @@ f8bca4381a59dbe7ba8d21ad1ef6530d *inst/include/sunnonlinsol/sunnonlinsol_newton.
 ffa016e33b911ff3801e21a727fab94e *inst/tinytest/test_all.R
 05425481320d8a3348b06f722111db4d *man/optimize.Rd
 0b808583ae92d11c66d7676d34c5a907 *man/solve.Rd
-ee634d89488517940beb3a0f90787c83 *src/Makevars
-cb686b06049760d24f8af95cfea92f73 *src/Makevars.win
+57341f2735d516c745cf38782c64401a *src/Makevars
+1b060d352b05f8e91c74ea836745c74f *src/Makevars.win
 fbafc8fa3d8bf63bbc78850fdb377d5e *src/RcppExports.cpp
 5e6f713b9cc7c6e3a2ec205ed53e3dd3 *src/default_error_spline_fct.cpp
 9dcf25b80db5c6891797c1a07e80773b *src/optimizer.cpp
